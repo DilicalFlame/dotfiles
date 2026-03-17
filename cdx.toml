@@ -1,0 +1,2 @@
+ignored_folders = ["node_modules", "target", ".venv", ".idea", ".vscode", ".next", ".git", "out", ".nuxt", ".nx", ".cache", "venv", "__pycache__", "$Recycle.Bin", "Windows", "Microsoft", "$SysReset"]
+max_matches = 10

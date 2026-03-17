@@ -5,6 +5,14 @@ New-Item -ItemType SymbolicLink -Path "c:\Users\devesh\AppData\Roaming\alacritty
 ```
 
 ```bash
+New-Item -ItemType SymbolicLink -Path "~\.config\cdx.toml" -Target ".\cdx.toml"
+```
+
+```bash
+New-Item -ItemType SymbolicLink -Path "~\.config\fastfetch" -Target ".\fastfetch"
+```
+
+```bash
 New-Item -ItemType SymbolicLink -Path "C:\Users\devesh\AppData\Local\nvim" -Target ".\nvim"
 ```
 
