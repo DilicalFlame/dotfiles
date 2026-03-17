@@ -1,0 +1,18 @@
+[terminal]
+shell = { program = "C:\\Program Files\\PowerShell\\7\\pwsh.exe", args = ["-NoLogo", "-WorkingDirectory", "D:\\"] }
+
+[window]
+dimensions = { columns = 120, lines = 30 }
+position = { x = 120, y = 50 }
+opacity = 1
+blur = true
+
+[font]
+size = 14.0
+
+[font.normal]
+family = "JetBrainsMono Nerd Font Mono"
+style = "Regular"
+
+[selection]
+save_to_clipboard = true
