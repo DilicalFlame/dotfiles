@@ -19,3 +19,7 @@ New-Item -ItemType SymbolicLink -Path "C:\Users\devesh\AppData\Local\nvim" -Targ
 ```bash
 New-Item -ItemType SymbolicLink -Path "C:\Users\devesh\Documents\PowerShell\Microsoft.PowerShell_profile.ps1" -Target ".\pwsh\profile.ps1"
 ```
+
+```bash
+New-Item -ItemType SymbolicLink -Path "C:\Users\devesh\.wezterm.lua" -Target "D:\dotfiles\wezterm\wezterm.lua"
+```

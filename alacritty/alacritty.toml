@@ -4,7 +4,7 @@ shell = { program = "C:\\Program Files\\PowerShell\\7\\pwsh.exe", args = ["-NoLo
 [window]
 dimensions = { columns = 120, lines = 30 }
 position = { x = 120, y = 50 }
-opacity = 1
+opacity = 0.95
 blur = true
 
 [font]

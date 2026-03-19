@@ -1,23 +1,19 @@
+-- Options are automatically loaded before lazy.nvim startup
+-- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
+-- Add any additional options here
+
 -- Line Numbers Display
 vim.wo.number = true
 vim.o.relativenumber = true
 
 -- System Integration
-vim.o.clipboard = 'unnamedplus'
-vim.o.mouse = 'a'
+vim.o.clipboard = "unnamedplus"
+vim.o.mouse = "a"
 
 -- Setup PowerShell as default shell
-if vim.fn.executable 'pwsh' == 1 then
-  vim.o.shell = 'pwsh'
-  vim.o.shellcmdflag =
-    '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
-  vim.o.shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-  vim.o.shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-  vim.o.shellquote = ''
-  vim.o.shellxquote = ''
-end
+vim.o.shell = "pwsh"
 
--- Fix screen not clearing on exit 
+-- Fix screen not clearing on exit
 vim.api.nvim_create_autocmd("VimLeave", {
   pattern = "*",
   callback = function()
@@ -54,7 +50,7 @@ vim.opt.termguicolors = true
 vim.o.numberwidth = 4
 vim.o.showtabline = 2
 vim.o.conceallevel = 0
-vim.wo.signcolumn = 'yes'
+vim.wo.signcolumn = "yes"
 vim.o.cmdheight = 1
 
 -- Configure listchars to show spaces as dots
@@ -70,7 +66,7 @@ vim.o.swapfile = false
 vim.o.backup = false
 vim.o.writebackup = false
 vim.o.undofile = true
-vim.o.fileencoding = 'utf-8'
+vim.o.fileencoding = "utf-8"
 
 -- Timing and Event Delays
 vim.o.updatetime = 250
@@ -78,16 +74,16 @@ vim.o.timeoutlen = 300
 
 -- Completion and Menu Settings
 vim.o.pumheight = 10
-vim.o.completeopt = 'menuone,noselect'
-vim.opt.shortmess:append 'c'
+vim.o.completeopt = "menuone,noselect"
+vim.opt.shortmess:append("c")
 
 -- Navigation and Editing
-vim.o.whichwrap = 'bs<>[]hl'
-vim.o.backspace = 'indent,eol,start'
-vim.opt.iskeyword:append '-'
+vim.o.whichwrap = "bs<>[]hl"
+vim.o.backspace = "indent,eol,start"
+vim.opt.iskeyword:append("-")
 
 -- Auto-formatting Preferences
-vim.opt.formatoptions:remove { 'c', 'r', 'o' }
+vim.opt.formatoptions:remove({ "c", "r", "o" })
 
 -- Path Isolation
-vim.opt.runtimepath:remove '/usr/share/vim/vimfiles'
+vim.opt.runtimepath:remove("/usr/share/vim/vimfiles")
