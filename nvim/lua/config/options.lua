@@ -46,12 +46,16 @@ vim.o.scrolloff = 10
 vim.o.sidescrolloff = 8
 vim.o.cursorline = true
 vim.o.showmode = false
+vim.o.guicursor = "n-v-c-sm:block-blinkwait0-blinkon0-blinkoff0,i-ci-ve:ver25-blinkwait0-blinkon0-blinkoff0,r-cr-o:hor20-blinkwait0-blinkon0-blinkoff0,t:block-blinkwait0-blinkon0-blinkoff0"
 vim.opt.termguicolors = true
 vim.o.numberwidth = 4
 vim.o.showtabline = 2
 vim.o.conceallevel = 0
 vim.wo.signcolumn = "yes"
 vim.o.cmdheight = 1
+
+-- Disable Snacks.nvim animations globally when available.
+vim.g.snacks_animate = false
 
 -- Configure listchars to show spaces as dots
 -- vim.o.list = true

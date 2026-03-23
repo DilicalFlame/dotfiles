@@ -16,3 +16,6 @@ style = "Regular"
 
 [selection]
 save_to_clipboard = true
+
+[cursor]
+style = { shape = "Block", blinking = "Off" }

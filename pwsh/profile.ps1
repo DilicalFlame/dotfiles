@@ -6,6 +6,8 @@
 #    CreateNoWindow = $true
 #}) | Out-Null
 
+Set-Alias -Name lg -Value lazygit
+
 function psql {
     chcp 1252 | Out-Null
     & "C:\Program Files\PostgreSQL\18\bin\psql.exe" @args

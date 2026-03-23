@@ -70,4 +70,28 @@ function M.float()
   })
 end
 
+function M.fullscreen()
+  local name = "fullscreen"
+
+  if M.terminals[name] and vim.api.nvim_buf_is_valid(M.terminals[name]) then
+    vim.cmd("buffer " .. M.terminals[name])
+    vim.cmd("only")
+    vim.cmd("startinsert")
+    return
+  end
+
+  vim.cmd("enew")
+  vim.cmd("terminal")
+
+  local buf = vim.api.nvim_get_current_buf()
+  M.terminals[name] = buf
+
+  vim.bo[buf].buflisted = true
+  vim.bo[buf].filetype = "terminal"
+
+  -- Keep the terminal as the only visible window in the current tab.
+  vim.cmd("only")
+  vim.cmd("startinsert")
+end
+
 return M

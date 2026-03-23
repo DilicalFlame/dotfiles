@@ -56,6 +56,8 @@ config.win32_system_backdrop = "Acrylic"
 config.font = wezterm.font("JetBrainsMono Nerd Font Mono", { weight = "Regular" })
 config.font_size = 13.5
 config.line_height = 1
+config.default_cursor_style = "SteadyBlock"
+config.cursor_blink_rate = 0
 
 config.window_close_confirmation = "NeverPrompt"
 

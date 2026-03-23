@@ -199,9 +199,9 @@ vim.keymap.set("n", "<leader>st", function()
   vim.notify("Theme picker is unavailable; reload config and try again.", vim.log.levels.WARN)
 end, { desc = "Switch Theme" })
 
-vim.keymap.set("n", "<leader>td", function()
-  require("core.todo").toggle()
-end, { desc = "Toggle TODO" })
+-- vim.keymap.set("n", "<leader>td", function()
+--   require("core.todo").toggle()
+-- end, { desc = "Toggle TODO" })
 
 -- Terminals
 vim.keymap.set("t", "<C-c>", "<C-c>", { noremap = true })
@@ -210,3 +210,7 @@ local term = require("core.terminal")
 vim.keymap.set("n", "<leader>tf", function()
   require("core.terminal").float()
 end, { desc = "Floating terminal" })
+
+vim.keymap.set("n", "<leader>tF", function()
+  term.fullscreen()
+end, { desc = "Fullscreen terminal" })
