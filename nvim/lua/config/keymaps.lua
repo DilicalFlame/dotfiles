@@ -17,8 +17,8 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("i", "jj", "<Esc>", opts) -- Quickly exit insert mode
 
 -- Terminal Mode
-vim.keymap.set("t", "jj", "<C-\\><C-n>", opts) -- Quickly exit terminal mode
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", opts) -- Exit terminal mode with Escape
+vim.keymap.set("t", "<C-]>", "<C-\\><C-n>", opts) -- Fast exit terminal mode without timeout side effects
 vim.keymap.set("n", "<leader>tt", "<cmd>split | terminal<CR>", { desc = "Open terminal below" })
 vim.keymap.set("n", "<leader>tv", "<cmd>vsplit | terminal<CR>", { desc = "Open terminal vertical" })
 
@@ -60,11 +60,56 @@ vim.keymap.set("n", "<leader>h", "<C-w>s", opts) -- Split window horizontally
 vim.keymap.set("n", "<leader>se", "<C-w>=", opts) -- Equalize split window dimensions
 vim.keymap.set("n", "<leader>sx", ":close<CR>", opts) -- Close current split window
 
--- Split Navigation
-vim.keymap.set("n", "<C-k>", ":wincmd k<CR>", opts)
-vim.keymap.set("n", "<C-j>", ":wincmd j<CR>", opts)
-vim.keymap.set("n", "<C-h>", ":wincmd h<CR>", opts)
-vim.keymap.set("n", "<C-l>", ":wincmd l<CR>", opts)
+local function navigate_split(direction)
+  local mode = vim.api.nvim_get_mode().mode
+  local started_in_insert = mode:sub(1, 1) == "i" or mode:sub(1, 1) == "t"
+
+  if mode == "c" then
+    local esc = vim.api.nvim_replace_termcodes("<C-c>", true, false, true)
+    vim.api.nvim_feedkeys(esc, "n", false)
+    vim.schedule(function()
+      vim.cmd("wincmd " .. direction)
+    end)
+    return
+  end
+
+  if started_in_insert then
+    vim.cmd("stopinsert")
+    vim.cmd("wincmd " .. direction)
+    vim.schedule(function()
+      vim.cmd("startinsert")
+    end)
+    return
+  end
+
+  vim.cmd("wincmd " .. direction)
+end
+
+vim.keymap.set({ "n", "i" }, "<C-h>", function()
+  navigate_split("h")
+end, { desc = "Go to left split", silent = true })
+vim.keymap.set({ "n", "i" }, "<C-j>", function()
+  navigate_split("j")
+end, { desc = "Go to lower split", silent = true })
+vim.keymap.set({ "n", "i" }, "<C-k>", function()
+  navigate_split("k")
+end, { desc = "Go to upper split", silent = true })
+vim.keymap.set({ "n", "i" }, "<C-l>", function()
+  navigate_split("l")
+end, { desc = "Go to right split", silent = true })
+
+vim.keymap.set({ "n", "i", "t", "c" }, "<M-Left>", function()
+  navigate_split("h")
+end, { desc = "Go to left split", silent = true })
+vim.keymap.set({ "n", "i", "t", "c" }, "<M-Down>", function()
+  navigate_split("j")
+end, { desc = "Go to lower split", silent = true })
+vim.keymap.set({ "n", "i", "t", "c" }, "<M-Up>", function()
+  navigate_split("k")
+end, { desc = "Go to upper split", silent = true })
+vim.keymap.set({ "n", "i", "t", "c" }, "<M-Right>", function()
+  navigate_split("l")
+end, { desc = "Go to right split", silent = true })
 
 -- Tab (Buffer) Management
 vim.keymap.set("n", "<leader>to", "<cmd> enew <CR>", opts) -- Open new tab (buffer)
@@ -74,6 +119,37 @@ vim.keymap.set("n", "<leader>tp", ":bprevious<CR>", opts) -- Go to previous tab 
 
 -- Utilities
 vim.keymap.set("n", "<leader>lw", "<cmd>set wrap!<CR>", opts) -- Toggle line wrapping
+
+local function toggle_vimade()
+  if vim.fn.exists(":VimadeToggle") == 2 then
+    vim.cmd("VimadeToggle")
+    return
+  end
+
+  local can_enable = vim.fn.exists(":VimadeEnable") == 2
+  local can_disable = vim.fn.exists(":VimadeDisable") == 2
+
+  if not (can_enable and can_disable) then
+    vim.notify("Vimade toggle command is unavailable", vim.log.levels.WARN)
+    return
+  end
+
+  if vim.g.vimade_enabled == nil then
+    vim.g.vimade_enabled = true
+  end
+
+  if vim.g.vimade_enabled then
+    vim.cmd("VimadeDisable")
+    vim.g.vimade_enabled = false
+    vim.notify("Vimade: OFF", vim.log.levels.INFO)
+  else
+    vim.cmd("VimadeEnable")
+    vim.g.vimade_enabled = true
+    vim.notify("Vimade: ON", vim.log.levels.INFO)
+  end
+end
+
+vim.keymap.set("n", "<leader>uv", toggle_vimade, { desc = "Toggle Vimade" })
 
 -- Smart Universal Close (`<leader>q`)
 local function smart_close()

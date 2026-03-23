@@ -2,6 +2,24 @@ local M = {}
 
 local theme_file = vim.fn.stdpath("state") .. "/active_theme.txt"
 
+local function apply_ui_overrides(theme)
+  local separator_fg = "#5A6478"
+  local separator_bg = "NONE"
+
+  if theme == "carbonfox" then
+    local ok, palette_mod = pcall(require, "nightfox.palette")
+    if ok and palette_mod and palette_mod.load then
+      local pal = palette_mod.load("carbonfox")
+      if pal then
+        separator_fg = pal.sel1 or pal.fg2 or separator_fg
+      end
+    end
+  end
+
+  vim.api.nvim_set_hl(0, "WinSeparator", { fg = separator_fg, bg = separator_bg, bold = true })
+  vim.api.nvim_set_hl(0, "VertSplit", { fg = separator_fg, bg = separator_bg, bold = true })
+end
+
 local function read_theme()
   local f = io.open(theme_file, "r")
   if not f then
@@ -31,10 +49,12 @@ end
 function M.load()
   local theme = read_theme()
   if theme and pcall(vim.cmd, "colorscheme " .. theme) then
+    apply_ui_overrides(theme)
     return
   end
 
   pcall(vim.cmd, "colorscheme miasma")
+  apply_ui_overrides("miasma")
 end
 
 function M.set(theme)
@@ -45,6 +65,7 @@ function M.set(theme)
   local ok = pcall(vim.cmd, "colorscheme " .. theme)
   if ok then
     write_theme(theme)
+    apply_ui_overrides(theme)
     return
   end
 

@@ -28,20 +28,28 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 vim.api.nvim_create_autocmd("User", {
   pattern = "PersistenceLoadPost",
   callback = function()
-    -- normalize state after restore
-    vim.cmd("silent! only") -- remove weird splits if any
+    -- Keep restored layout exactly as it was saved.
   end,
 })
 
 -- stay in terminal mode when entering
 vim.api.nvim_create_autocmd("TermOpen", {
-  callback = function()
+  callback = function(ev)
+    vim.opt_local.number = false
+    vim.opt_local.relativenumber = false
+    vim.opt_local.cursorline = false
+    vim.opt_local.signcolumn = "no"
+    vim.opt_local.foldcolumn = "0"
+    vim.opt_local.spell = false
+    vim.opt_local.list = false
+    vim.opt_local.wrap = false
+    vim.opt_local.winfixwidth = false
+    vim.opt_local.winfixheight = false
+
+    -- Avoid expensive statusline updates in terminal buffers where input latency matters.
+    pcall(vim.api.nvim_set_option_value, "statuscolumn", "", { scope = "local", win = vim.fn.bufwinid(ev.buf) })
+
     vim.cmd("startinsert")
   end,
 })
 
-vim.api.nvim_create_autocmd("VimLeavePre", {
-  callback = function()
-    require("persistence").save()
-  end,
-})

@@ -75,6 +75,10 @@ vim.o.fileencoding = "utf-8"
 -- Timing and Event Delays
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300
+vim.o.ttimeoutlen = 10
+
+-- Save/restore split layout and window-local state in sessions.
+vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- Completion and Menu Settings
 vim.o.pumheight = 10
