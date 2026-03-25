@@ -5,12 +5,7 @@ return {
     opts = {
       autoresize = {
         enable = true,
-      },
-      ui = {
-        number = false,
-        relativenumber = false,
-        hybridnumber = false,
-        cursorline = false,
+        exclude_filetypes = { "neo-tree", "neo-tree-popup", "neo-tree-filter" },
       },
     },
   },

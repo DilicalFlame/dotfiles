@@ -36,8 +36,11 @@ function M.float()
 
   vim.bo[buf].bufhidden = "wipe"
 
-  local width = math.floor(vim.o.columns * 0.8)
-  local height = math.floor(vim.o.lines * 0.8)
+  -- Use a near fullscreen float while preserving a slim editor margin.
+  -- local width = math.max(20, math.floor(vim.o.columns * 0.96))
+  -- local height = math.max(8, math.floor(vim.o.lines * 0.96))
+  local width = math.max(20, math.floor(vim.o.columns))
+  local height = math.max(8, math.floor(vim.o.lines))
 
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",

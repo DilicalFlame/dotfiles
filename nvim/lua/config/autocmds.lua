@@ -56,11 +56,14 @@ vim.api.nvim_create_autocmd("TermOpen", {
 local ignore_filetypes = {
   "neo-tree",
   "neo-tree-popup",
+  "neo-tree-filter",
   "notify",
   "TelescopePrompt",
   "snacks_picker_list",
   "snacks_picker_input",
 }
+
+local augroup = vim.api.nvim_create_augroup("FocusDisable", { clear = true })
 
 
 vim.api.nvim_create_autocmd("FileType", {
