@@ -9,6 +9,7 @@ pcall(vim.keymap.del, "n", "<leader>qs")
 pcall(vim.keymap.del, "n", "<leader>qS")
 pcall(vim.keymap.del, "n", "<leader>ql")
 pcall(vim.keymap.del, "n", "<leader>st")
+pcall(vim.keymap.del, "n", "<leader>e")
 
 -- Disable default spacebar mapping to enable leader functionality
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
@@ -17,7 +18,6 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("i", "jj", "<Esc>", opts) -- Quickly exit insert mode
 
 -- Terminal Mode
-vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", opts) -- Exit terminal mode with Escape
 vim.keymap.set("t", "<C-]>", "<C-\\><C-n>", opts) -- Fast exit terminal mode without timeout side effects
 vim.keymap.set("n", "<leader>tt", "<cmd>split | terminal<CR>", { desc = "Open terminal below" })
 vim.keymap.set("n", "<leader>tv", "<cmd>vsplit | terminal<CR>", { desc = "Open terminal vertical" })
@@ -59,6 +59,7 @@ vim.keymap.set("n", "<leader>v", "<C-w>v", opts) -- Split window vertically
 vim.keymap.set("n", "<leader>h", "<C-w>s", opts) -- Split window horizontally
 vim.keymap.set("n", "<leader>se", "<C-w>=", opts) -- Equalize split window dimensions
 vim.keymap.set("n", "<leader>sx", ":close<CR>", opts) -- Close current split window
+vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Explorer NeoTree", silent = true })
 
 local function navigate_split(direction)
   local mode = vim.api.nvim_get_mode().mode
@@ -98,16 +99,16 @@ vim.keymap.set({ "n", "i" }, "<C-l>", function()
   navigate_split("l")
 end, { desc = "Go to right split", silent = true })
 
-vim.keymap.set({ "n", "i", "t", "c" }, "<M-Left>", function()
+vim.keymap.set({ "n", "i", "c" }, "<M-Left>", function()
   navigate_split("h")
 end, { desc = "Go to left split", silent = true })
-vim.keymap.set({ "n", "i", "t", "c" }, "<M-Down>", function()
+vim.keymap.set({ "n", "i", "c" }, "<M-Down>", function()
   navigate_split("j")
 end, { desc = "Go to lower split", silent = true })
-vim.keymap.set({ "n", "i", "t", "c" }, "<M-Up>", function()
+vim.keymap.set({ "n", "i", "c" }, "<M-Up>", function()
   navigate_split("k")
 end, { desc = "Go to upper split", silent = true })
-vim.keymap.set({ "n", "i", "t", "c" }, "<M-Right>", function()
+vim.keymap.set({ "n", "i", "c" }, "<M-Right>", function()
   navigate_split("l")
 end, { desc = "Go to right split", silent = true })
 
@@ -234,15 +235,6 @@ vim.keymap.set("n", "<leader>q", smart_close, {
   silent = true,
 })
 
-vim.keymap.set("t", "<leader>q", function()
-  vim.cmd("stopinsert")
-  vim.schedule(smart_close) -- ensures proper mode transition
-end, {
-  desc = "Smart close",
-  noremap = true,
-  silent = true,
-})
-
 -- Diagnostic Navigation
 vim.keymap.set("n", "[d", function()
   vim.diagnostic.jump({ count = -1, float = true })
@@ -280,7 +272,6 @@ end, { desc = "Switch Theme" })
 -- end, { desc = "Toggle TODO" })
 
 -- Terminals
-vim.keymap.set("t", "<C-c>", "<C-c>", { noremap = true })
 local term = require("core.terminal")
 
 vim.keymap.set("n", "<leader>tf", function()

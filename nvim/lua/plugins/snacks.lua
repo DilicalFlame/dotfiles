@@ -2,6 +2,9 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
+      explorer = {
+        enabled = false,
+      },
       dashboard = {
         enabled = true,
         -- 'row' sets the starting line from the top. Changing this from nil (center) to 4 adds a little top padding!
@@ -33,14 +36,7 @@ return {
       picker = {
         sources = {
           explorer = {
-            hidden = true,
-            ignored = true,
-            layout = {
-              layout = {
-                width = 30,
-                min_width = 30,
-              },
-            },
+            enabled = false,
           },
         },
       },
