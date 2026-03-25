@@ -115,3 +115,32 @@ function cdx {
         }
     }
 }
+
+# Search engines
+function google { param([string]$q); if ($q) { Start-Process "https://www.google.com/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.google.com" } }
+function ddg { param([string]$q); if ($q) { Start-Process "https://duckduckgo.com/?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://duckduckgo.com" } }
+function bing { param([string]$q); if ($q) { Start-Process "https://www.bing.com/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.bing.com" } }
+function yandex { param([string]$q); if ($q) { Start-Process "https://yandex.com/search/?text=$([uri]::EscapeDataString($q))" } else { Start-Process "https://yandex.com" } }
+function brave { param([string]$q); if ($q) { Start-Process "https://search.brave.com/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://search.brave.com" } }
+function ecosia { param([string]$q); if ($q) { Start-Process "https://www.ecosia.org/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.ecosia.org" } }
+function startpage { param([string]$q); if ($q) { Start-Process "https://www.startpage.com/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.startpage.com" } }
+function yahoo { param([string]$q); if ($q) { Start-Process "https://search.yahoo.com/search?p=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.yahoo.com" } }
+function perplexity { param([string]$q); if ($q) { Start-Process "https://www.perplexity.ai/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.perplexity.ai" } }
+function awtv { param([string]$q); if ($q) { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://aniwatchtv.to/search?keyword=$([uri]::EscapeDataString($q))`"" } else { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://aniwatchtv.to`"" } }
+
+# Video
+function yt { param([string]$q); if ($q) { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://www.youtube.com/results?search_query=$([uri]::EscapeDataString($q))`"" } else { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://www.youtube.com`"" } }
+function ytm { param([string]$q); if ($q) { Start-Process "https://music.youtube.com/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://music.youtube.com" } }
+
+# Dev
+function gh-search { param([string]$q); if ($q) { Start-Process "https://github.com/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://github.com" } }
+function mdn { param([string]$q); if ($q) { Start-Process "https://developer.mozilla.org/en-US/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://developer.mozilla.org" } }
+
+# Shopping
+function amazon { param([string]$q); if ($q) { Start-Process "https://www.amazon.in/s?k=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.amazon.in" } }
+
+# Media
+function reddit { param([string]$q); if ($q) { Start-Process "https://www.reddit.com/search/?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.reddit.com" } }
+function spotify { param([string]$q); if ($q) { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://open.spotify.com/search/$([uri]::EscapeDataString($q))`"" } else { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://open.spotify.com`"" } }
+function wiki { param([string]$q); if ($q) { Start-Process "https://en.wikipedia.org/wiki/Special:Search?search=$([uri]::EscapeDataString($q))" } else { Start-Process "https://en.wikipedia.org" } }
+function gmaps { param([string]$q); if ($q) { Start-Process "https://www.google.com/maps/search/$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.google.com/maps" } }
