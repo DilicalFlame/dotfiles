@@ -35,6 +35,8 @@ vim.api.nvim_create_autocmd("User", {
 -- stay in terminal mode when entering
 vim.api.nvim_create_autocmd("TermOpen", {
   callback = function(ev)
+    vim.bo[ev.buf].bufhidden = "wipe"
+
     vim.opt_local.number = false
     vim.opt_local.relativenumber = false
     vim.opt_local.cursorline = false
@@ -51,6 +53,28 @@ vim.api.nvim_create_autocmd("TermOpen", {
 
     vim.cmd("startinsert")
   end,
+})
+
+vim.api.nvim_create_autocmd("TermClose", {
+  callback = function(ev)
+    if type(vim.v.event) == "table" and vim.v.event.status and vim.v.event.status ~= 0 then
+      return
+    end
+
+    local buf = ev.buf
+    if not vim.api.nvim_buf_is_valid(buf) then
+      return
+    end
+
+    for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+      pcall(vim.api.nvim_win_close, win, true)
+    end
+
+    if vim.api.nvim_buf_is_valid(buf) then
+      pcall(vim.api.nvim_buf_delete, buf, { force = true })
+    end
+  end,
+  desc = "Auto-close terminal window and wipe terminal buffer on successful exit",
 })
 
 local ignore_filetypes = {
@@ -76,4 +100,32 @@ vim.api.nvim_create_autocmd("FileType", {
     end
   end,
   desc = "Disable focus autoresize for FileType",
+})
+
+local python_env = require("core.python_env")
+local python_env_group = vim.api.nvim_create_augroup("ProjectPythonEnv", { clear = true })
+
+vim.api.nvim_create_autocmd({ "VimEnter", "DirChanged" }, {
+  group = python_env_group,
+  callback = function()
+    python_env.activate(vim.fn.getcwd())
+  end,
+  desc = "Auto-detect and activate project Python virtualenv from cwd",
+})
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  group = python_env_group,
+  callback = function(ev)
+    if vim.bo[ev.buf].buftype ~= "" then
+      return
+    end
+
+    local path = vim.api.nvim_buf_get_name(ev.buf)
+    if path == "" then
+      return
+    end
+
+    python_env.activate(path)
+  end,
+  desc = "Auto-detect and activate project Python virtualenv from file buffers",
 })

@@ -1,10 +1,13 @@
 local M = {}
+local python_env = require("core.python_env")
 
 M.terminals = {}
 
 local function create_terminal(opts)
   opts = opts or {}
   local name = opts.name or "default"
+
+  python_env.activate(vim.api.nvim_buf_get_name(0))
 
   if M.terminals[name] and vim.api.nvim_buf_is_valid(M.terminals[name]) then
     vim.cmd("buffer " .. M.terminals[name])
@@ -32,6 +35,8 @@ function M.list()
 end
 
 function M.float()
+  python_env.activate(vim.api.nvim_buf_get_name(0))
+
   local buf = vim.api.nvim_create_buf(false, true)
 
   vim.bo[buf].bufhidden = "wipe"
@@ -75,6 +80,8 @@ end
 
 function M.fullscreen()
   local name = "fullscreen"
+
+  python_env.activate(vim.api.nvim_buf_get_name(0))
 
   if M.terminals[name] and vim.api.nvim_buf_is_valid(M.terminals[name]) then
     vim.cmd("buffer " .. M.terminals[name])

@@ -20,7 +20,35 @@ vim.keymap.set("i", "jj", "<Esc>", opts) -- Quickly exit insert mode
 -- Terminal Mode
 vim.keymap.set("t", "<C-]>", "<C-\\><C-n>", opts) -- Fast exit terminal mode without timeout side effects
 vim.keymap.set("n", "<leader>tt", "<cmd>split | terminal<CR>", { desc = "Open terminal below" })
-vim.keymap.set("n", "<leader>tv", "<cmd>vsplit | terminal<CR>", { desc = "Open terminal vertical" })
+vim.keymap.set("n", "<leader>tT", "<cmd>vsplit | terminal<CR>", { desc = "Open terminal vertical" })
+
+local function current_file_dir_or_cwd()
+  local buf = vim.api.nvim_get_current_buf()
+  if vim.bo[buf].buftype == "" then
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name ~= "" then
+      local dir = vim.fs.dirname(name)
+      if dir and vim.fn.isdirectory(dir) == 1 then
+        return dir
+      end
+    end
+  end
+  return vim.fn.getcwd()
+end
+
+local function open_terminal_in_dir(split_cmd, dir)
+  vim.cmd(split_cmd)
+  vim.cmd("lcd " .. vim.fn.fnameescape(dir))
+  vim.cmd("terminal")
+end
+
+vim.keymap.set("n", "<leader>tc", function()
+  open_terminal_in_dir("split", current_file_dir_or_cwd())
+end, { desc = "Open terminal below (current file dir)" })
+
+vim.keymap.set("n", "<leader>tC", function()
+  open_terminal_in_dir("vsplit", current_file_dir_or_cwd())
+end, { desc = "Open terminal vertical (current file dir)" })
 
 -- File Operations
 vim.keymap.set("n", "<C-s>", "<cmd> w <CR>", opts) -- Save file
