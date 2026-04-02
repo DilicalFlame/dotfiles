@@ -5,7 +5,7 @@ return {
     opts = {
       autoresize = {
         enable = true,
-        exclude_filetypes = { "neo-tree", "neo-tree-popup", "neo-tree-filter" },
+        exclude_filetypes = { "neo-tree", "neo-tree-popup", "neo-tree-filter", "aerial", "aerial-nav" },
       },
     },
   },

@@ -17,6 +17,16 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 -- Insert Mode
 vim.keymap.set("i", "jj", "<Esc>", opts) -- Quickly exit insert mode
 
+vim.keymap.set("n", "K", function()
+  local hover_clients = vim.lsp.get_clients({ bufnr = 0, method = "textDocument/hover" })
+  if #hover_clients > 0 then
+    vim.lsp.buf.hover()
+    return
+  end
+
+  vim.cmd("normal! K")
+end, { desc = "Hover documentation / keyword help" })
+
 -- Terminal Mode
 vim.keymap.set("t", "<C-]>", "<C-\\><C-n>", opts) -- Fast exit terminal mode without timeout side effects
 vim.keymap.set("n", "<leader>tt", "<cmd>split | terminal<CR>", { desc = "Open terminal below" })

@@ -19,8 +19,8 @@ local state = {
   root = nil,
   python = nil,
   venv = nil,
-  original_path = vim.env.PATH or "",
   original_virtual_env = vim.env.VIRTUAL_ENV,
+  last_bin_dir = nil,
 }
 
 local function fs_stat(path)
@@ -39,6 +39,53 @@ end
 
 local function is_uri(path)
   return path and path:match("^%a[%w+.-]*://") ~= nil
+end
+
+local function same_path(a, b)
+  if not a or not b then
+    return false
+  end
+  local na = normalize(a)
+  local nb = normalize(b)
+  if not na or not nb then
+    return false
+  end
+  if is_windows then
+    return na:lower() == nb:lower()
+  end
+  return na == nb
+end
+
+local function split_path(path)
+  if not path or path == "" then
+    return {}
+  end
+
+  local parts = {}
+  for part in path:gmatch("([^" .. path_list_sep .. "]+)") do
+    parts[#parts + 1] = part
+  end
+  return parts
+end
+
+local function set_path_with_env_bin(bin_dir)
+  local entries = split_path(vim.env.PATH or "")
+  local updated = {}
+
+  for _, entry in ipairs(entries) do
+    local is_previous_env_bin = state.last_bin_dir and same_path(entry, state.last_bin_dir)
+    local is_new_env_bin = bin_dir and same_path(entry, bin_dir)
+    if not is_previous_env_bin and not is_new_env_bin then
+      updated[#updated + 1] = entry
+    end
+  end
+
+  if bin_dir then
+    table.insert(updated, 1, bin_dir)
+  end
+
+  vim.env.PATH = table.concat(updated, path_list_sep)
+  state.last_bin_dir = bin_dir
 end
 
 local function python_from_venv(venv_dir)
@@ -109,13 +156,14 @@ local function set_process_environment(python, venv_dir)
   if python and venv_dir then
     local bin_dir = vim.fs.dirname(python)
     vim.env.VIRTUAL_ENV = venv_dir
-    vim.env.PATH = bin_dir .. path_list_sep .. state.original_path
+    set_path_with_env_bin(bin_dir)
     vim.g.python3_host_prog = python
     return
   end
 
-  vim.env.PATH = state.original_path
+  set_path_with_env_bin(nil)
   vim.env.VIRTUAL_ENV = state.original_virtual_env
+  vim.g.python3_host_prog = nil
 end
 
 function M.activate(startpath)

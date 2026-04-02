@@ -81,6 +81,8 @@ local ignore_filetypes = {
   "neo-tree",
   "neo-tree-popup",
   "neo-tree-filter",
+  "aerial",
+  "aerial-nav",
   "notify",
   "TelescopePrompt",
   "snacks_picker_list",

@@ -74,6 +74,7 @@ return {
     attach_mode = "global",
     open_automatic = false,
     close_automatic_events = {},
+    close_on_select = true,
     filter_kind = false,
     show_guides = true,
     highlight_mode = "full_width",

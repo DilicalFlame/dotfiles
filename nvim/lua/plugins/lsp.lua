@@ -10,6 +10,15 @@ return {
       servers = {
         -- pyright will be automatically installed with mason and loaded with lspconfig
         pyright = {
+          settings = {
+            python = {
+              analysis = {
+                -- Keep completions/hover/import intelligence but avoid strict typing noise.
+                typeCheckingMode = "off",
+                diagnosticMode = "openFilesOnly",
+              },
+            },
+          },
           before_init = function(_, config)
             local root_dir = config.root_dir or vim.fn.getcwd()
             local python_path = python_env.python_for_root(root_dir)
