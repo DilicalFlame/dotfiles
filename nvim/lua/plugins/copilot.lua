@@ -19,6 +19,24 @@ local function should_attach(bufnr, bufname)
   return true
 end
 
+local function toggle_inline_completions()
+  if vim.g.copilot_inline_completions_enabled == nil then
+    vim.g.copilot_inline_completions_enabled = true
+  end
+
+  vim.g.copilot_inline_completions_enabled = not vim.g.copilot_inline_completions_enabled
+  local enabled = vim.g.copilot_inline_completions_enabled
+
+  if enabled then
+    vim.cmd("Copilot enable")
+  else
+    pcall(vim.cmd, "Copilot suggestion dismiss")
+    vim.cmd("Copilot disable")
+  end
+
+  vim.notify("Copilot inline completions: " .. (enabled and "ON" or "OFF"), vim.log.levels.INFO)
+end
+
 return {
   "zbirenbaum/copilot.lua",
   event = { "InsertEnter", "VeryLazy" },
@@ -28,6 +46,7 @@ return {
     { "<leader>as", "<cmd>Copilot status<cr>", desc = "Copilot Status" },
     { "<leader>ap", "<cmd>Copilot panel toggle<cr>", desc = "Copilot Panel Toggle" },
     { "<leader>at", "<cmd>Copilot suggestion toggle_auto_trigger<cr>", desc = "Copilot Toggle Auto Trigger" },
+    { "<leader>ai", toggle_inline_completions, desc = "Copilot Toggle Inline Completions" },
     { "<leader>am", "<cmd>Copilot model select<cr>", desc = "Copilot Model Select" },
     { "<leader>aw", "<cmd>Copilot workspace add .<cr>", desc = "Copilot Add Workspace" },
   },

@@ -6,6 +6,7 @@
 #    CreateNoWindow = $true
 #}) | Out-Null
 
+Import-Module 'gsudoModule'
 Set-Alias -Name lg -Value lazygit
 
 function psql {
@@ -130,6 +131,7 @@ function awtv { param([string]$q); if ($q) { Start-Process "C:\Program Files\Bra
 
 # Video
 function yt { param([string]$q); if ($q) { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://www.youtube.com/results?search_query=$([uri]::EscapeDataString($q))`"" } else { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://www.youtube.com`"" } }
+function ytp { Start-Process "C:\Users\devesh\AppData\Local\Vivaldi\Application\vivaldi.exe" -ArgumentList "--start-maximized", "--app-id=agimnkijcaahngcdmfeangaknmldooml" }
 function ytm { param([string]$q); if ($q) { Start-Process "https://music.youtube.com/search?q=$([uri]::EscapeDataString($q))" } else { Start-Process "https://music.youtube.com" } }
 
 # Dev

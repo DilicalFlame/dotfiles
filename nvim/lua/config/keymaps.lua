@@ -190,6 +190,37 @@ end
 
 vim.keymap.set("n", "<leader>uv", toggle_vimade, { desc = "Toggle Vimade" })
 
+local function delete_current_buffer()
+  local api = vim.api
+  local current = api.nvim_get_current_buf()
+  local listed_buffers = vim.fn.getbufinfo({ buflisted = 1 })
+
+  local replacement = nil
+  local alternate = vim.fn.bufnr("#")
+  if alternate > 0 and alternate ~= current and vim.fn.buflisted(alternate) == 1 then
+    replacement = alternate
+  end
+
+  if not replacement then
+    for _, info in ipairs(listed_buffers) do
+      if info.bufnr ~= current then
+        replacement = info.bufnr
+        break
+      end
+    end
+  end
+
+  if replacement and api.nvim_buf_is_valid(replacement) then
+    pcall(vim.cmd, "buffer " .. replacement)
+  else
+    vim.cmd("enew")
+  end
+
+  if api.nvim_buf_is_valid(current) then
+    pcall(vim.cmd, "bdelete! " .. current)
+  end
+end
+
 -- Smart Universal Close (`<leader>q`)
 local function smart_close()
   local api = vim.api
@@ -232,15 +263,14 @@ local function smart_close()
     return
   end
 
-  local listed_buffers = vim.fn.getbufinfo({ buflisted = 1 })
-  if #listed_buffers > 1 then
-    vim.cmd("bdelete!")
+  -- 3. Buffer-like content should prefer buffer deletion over window close.
+  if buftype == "terminal" then
+    delete_current_buffer()
     return
   end
 
-  -- 4. Terminal
-  if buftype == "terminal" then
-    vim.cmd("bdelete!")
+  if buftype == "" and bufname ~= "" then
+    delete_current_buffer()
     return
   end
 
@@ -254,17 +284,25 @@ local function smart_close()
   end
 
   if #normal_wins > 1 then
-    vim.cmd("close")
+    if buftype == "" then
+      delete_current_buffer()
+    else
+      vim.cmd("close")
+    end
     return
   end
 
-  -- 6. Final exit
-  if bufname == "" or buftype ~= "" then
-    vim.cmd("qa")
+  -- 6. Fallback for special buffers in a single window.
+  if #normal_wins == 1 then
+    if buftype == "" then
+      delete_current_buffer()
+    else
+      vim.cmd("enew")
+    end
     return
   end
 
-  vim.cmd("qa!")
+  vim.cmd("close")
 end
 
 vim.keymap.set("n", "<leader>q", smart_close, {

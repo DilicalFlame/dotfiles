@@ -35,6 +35,8 @@ return {
             end
           end,
         },
+        -- Enable Rust language intelligence (hover, go-to-def, completion, etc.)
+        rust_analyzer = {},
         -- Enables symbols for javascript/typescript files (including .cjs)
         ts_ls = {},
       },
