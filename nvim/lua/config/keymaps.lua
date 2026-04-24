@@ -97,7 +97,66 @@ vim.keymap.set("n", "<leader>v", "<C-w>v", opts) -- Split window vertically
 vim.keymap.set("n", "<leader>h", "<C-w>s", opts) -- Split window horizontally
 vim.keymap.set("n", "<leader>se", "<C-w>=", opts) -- Equalize split window dimensions
 vim.keymap.set("n", "<leader>sx", ":close<CR>", opts) -- Close current split window
-vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Explorer NeoTree", silent = true })
+
+local function open_snacks_explorer()
+  local ok, snacks = pcall(require, "snacks")
+  if not ok or not snacks then
+    return false
+  end
+
+  if type(snacks.explorer) == "function" then
+    snacks.explorer()
+    return true
+  end
+
+  if type(snacks.explorer) == "table" and type(snacks.explorer.open) == "function" then
+    snacks.explorer.open()
+    return true
+  end
+
+  if snacks.picker and type(snacks.picker.explorer) == "function" then
+    snacks.picker.explorer()
+    return true
+  end
+
+  return false
+end
+
+local function open_neotree_explorer()
+  if vim.fn.exists(":Neotree") == 2 then
+    vim.cmd("Neotree toggle")
+    return true
+  end
+
+  return false
+end
+
+local function open_project_explorer()
+  local use_snacks = require("core.explorer").use_snacks
+
+  if use_snacks then
+    if open_snacks_explorer() then
+      return true
+    end
+    if open_neotree_explorer() then
+      return true
+    end
+  else
+    if open_neotree_explorer() then
+      return true
+    end
+    if open_snacks_explorer() then
+      return true
+    end
+  end
+
+  vim.notify("No explorer backend is available", vim.log.levels.WARN)
+  return false
+end
+
+vim.keymap.set("n", "<leader>e", function()
+  open_project_explorer()
+end, { desc = "Explorer", silent = true })
 
 local function navigate_split(direction)
   local mode = vim.api.nvim_get_mode().mode
@@ -260,6 +319,13 @@ local function smart_close()
 
   if filetype == "neo-tree" then
     vim.cmd("Neotree close")
+    return
+  end
+
+  if filetype == "snacks_explorer" then
+    if not open_project_explorer() then
+      vim.cmd("close")
+    end
     return
   end
 

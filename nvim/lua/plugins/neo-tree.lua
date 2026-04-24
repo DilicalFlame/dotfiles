@@ -1,6 +1,9 @@
+local use_snacks_explorer = require("core.explorer").use_snacks
+
 return {
   {
     "nvim-neo-tree/neo-tree.nvim",
+    enabled = not use_snacks_explorer,
     branch = "v3.x",
     dependencies = {
       "nvim-lua/plenary.nvim",

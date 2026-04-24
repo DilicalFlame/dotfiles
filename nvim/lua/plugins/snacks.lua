@@ -1,9 +1,11 @@
+local use_snacks_explorer = require("core.explorer").use_snacks
+
 return {
   {
     "folke/snacks.nvim",
     opts = {
       explorer = {
-        enabled = false,
+        enabled = use_snacks_explorer,
       },
       dashboard = {
         enabled = true,
@@ -36,7 +38,7 @@ return {
       picker = {
         sources = {
           explorer = {
-            enabled = false,
+            enabled = use_snacks_explorer,
           },
         },
       },

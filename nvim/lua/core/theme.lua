@@ -2,6 +2,49 @@ local M = {}
 
 local theme_file = vim.fn.stdpath("state") .. "/active_theme.txt"
 
+local function get_hl(name)
+  local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
+  if ok and type(hl) == "table" then
+    return hl
+  end
+  return {}
+end
+
+local function first(...)
+  for i = 1, select("#", ...) do
+    local value = select(i, ...)
+    if value ~= nil then
+      return value
+    end
+  end
+  return nil
+end
+
+local function apply_completion_overrides()
+  local normal = get_hl("Normal")
+  local normal_float = get_hl("NormalFloat")
+  local float_border = get_hl("FloatBorder")
+  local pmenu = get_hl("Pmenu")
+  local pmenu_sel = get_hl("PmenuSel")
+  local comment = get_hl("Comment")
+
+  local menu_bg = first(pmenu.bg, normal_float.bg, normal.bg)
+  local menu_fg = first(pmenu.fg, normal_float.fg, normal.fg)
+  local border_fg = first(float_border.fg, comment.fg, menu_fg)
+  local select_bg = first(pmenu_sel.bg, menu_bg)
+  local select_fg = first(pmenu_sel.fg, menu_fg)
+  local muted_fg = first(comment.fg, menu_fg)
+
+  vim.api.nvim_set_hl(0, "BlinkCmpMenu", { fg = menu_fg, bg = menu_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpMenuBorder", { fg = border_fg, bg = menu_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpMenuSelection", { fg = select_fg, bg = select_bg, bold = true })
+  vim.api.nvim_set_hl(0, "BlinkCmpDoc", { fg = menu_fg, bg = menu_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpDocBorder", { fg = border_fg, bg = menu_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpLabelDescription", { fg = muted_fg, bg = menu_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpSource", { fg = muted_fg, bg = menu_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpGhostText", { fg = muted_fg, italic = true })
+end
+
 local function apply_ui_overrides(theme)
   local separator_fg = "#5A6478"
   local separator_bg = "NONE"
@@ -18,6 +61,7 @@ local function apply_ui_overrides(theme)
 
   vim.api.nvim_set_hl(0, "WinSeparator", { fg = separator_fg, bg = separator_bg, bold = true })
   vim.api.nvim_set_hl(0, "VertSplit", { fg = separator_fg, bg = separator_bg, bold = true })
+  apply_completion_overrides()
 end
 
 local function read_theme()
