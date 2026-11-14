@@ -1,25 +1,50 @@
-## Windows
+Run everything from the repo root. Targets are absolute (`$PWD`) because a relative symlink target resolves from the link's location, not your cwd.
 
-```bash
-New-Item -ItemType SymbolicLink -Path "c:\Users\devesh\AppData\Roaming\alacritty" -Target ".\alacritty"
+## Windows (PowerShell, run as admin or with Developer Mode on)
+
+```powershell
+$d = $PWD.Path
+$h = $HOME
+New-Item -ItemType Directory -Force "$h\.config", "$h\Documents\PowerShell" | Out-Null
+
+New-Item -ItemType SymbolicLink -Path "$env:APPDATA\alacritty"    -Target "$d\alacritty"
+New-Item -ItemType SymbolicLink -Path "$h\.config\cdx.toml"       -Target "$d\cdx.toml"
+New-Item -ItemType SymbolicLink -Path "$h\.config\fastfetch"      -Target "$d\fastfetch"
+New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\nvim"    -Target "$d\nvim"
+New-Item -ItemType SymbolicLink -Path "$h\Documents\PowerShell\Microsoft.PowerShell_profile.ps1" -Target "$d\pwsh\profile.ps1"
+New-Item -ItemType SymbolicLink -Path "$h\.wezterm.lua"           -Target "$d\wezterm\wezterm.lua"
 ```
 
-```bash
-New-Item -ItemType SymbolicLink -Path "~\.config\cdx.toml" -Target ".\cdx.toml"
-```
+> `~` is avoided on purpose: only the file provider expands it, and not reliably in `-Target`. If `Documents` is OneDrive-redirected, use `[Environment]::GetFolderPath('MyDocuments')` instead of `$h\Documents`.
+
+## Linux
 
 ```bash
-New-Item -ItemType SymbolicLink -Path "~\.config\fastfetch" -Target ".\fastfetch"
+d="$PWD"
+mkdir -p ~/.config/powershell
+
+ln -sfn "$d/alacritty"           ~/.config/alacritty
+ln -sfn "$d/cdx.toml"            ~/.config/cdx.toml
+ln -sfn "$d/fastfetch"           ~/.config/fastfetch
+ln -sfn "$d/nvim"                ~/.config/nvim
+ln -sfn "$d/pwsh/profile.ps1"    ~/.config/powershell/Microsoft.PowerShell_profile.ps1
+ln -sfn "$d/wezterm/wezterm.lua" ~/.wezterm.lua
 ```
 
-```bash
-New-Item -ItemType SymbolicLink -Path "C:\Users\devesh\AppData\Local\nvim" -Target ".\nvim"
-```
+## macOS
+
+Same as Linux (`~/.config` is used by all of these, including PowerShell and nvim):
 
 ```bash
-New-Item -ItemType SymbolicLink -Path "C:\Users\devesh\Documents\PowerShell\Microsoft.PowerShell_profile.ps1" -Target ".\pwsh\profile.ps1"
+d="$PWD"
+mkdir -p ~/.config/powershell
+
+ln -sfn "$d/alacritty"           ~/.config/alacritty
+ln -sfn "$d/cdx.toml"            ~/.config/cdx.toml
+ln -sfn "$d/fastfetch"           ~/.config/fastfetch
+ln -sfn "$d/nvim"                ~/.config/nvim
+ln -sfn "$d/pwsh/profile.ps1"    ~/.config/powershell/Microsoft.PowerShell_profile.ps1
+ln -sfn "$d/wezterm/wezterm.lua" ~/.wezterm.lua
 ```
 
-```bash
-New-Item -ItemType SymbolicLink -Path "C:\Users\devesh\.wezterm.lua" -Target "D:\dotfiles\wezterm\wezterm.lua"
-```
+> The `pwsh` profile path on Linux/macOS is `$PROFILE.CurrentUserCurrentHost` (`~/.config/powershell/Microsoft.PowerShell_profile.ps1`).
