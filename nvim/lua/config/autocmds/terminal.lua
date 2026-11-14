@@ -27,6 +27,51 @@ au("TermOpen", {
   end,
 })
 
+-- Closing a full-width terminal split makes Neovim focus the LEFTMOST window of the row above. In a markdown preview
+-- (no-neck-pain: pad | text | pad) that is the empty left pad, not your text. Remember the last real editing window
+-- and go back to it when a terminal window closes (hide or exit).
+local last_edit_win
+local function is_edit_win(win)
+  local buf = vim.api.nvim_win_get_buf(win)
+  return vim.api.nvim_win_get_config(win).relative == ""
+    and vim.bo[buf].buftype == ""
+    and vim.bo[buf].filetype ~= "no-neck-pain"
+end
+-- WinLeave too: the window you start in never fires WinEnter, so it would otherwise never be remembered.
+au({ "WinEnter", "WinLeave" }, {
+  group = group("term_return_track"),
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    if is_edit_win(win) then
+      last_edit_win = win
+    end
+  end,
+})
+--- If focus ended up on a no-neck-pain pad, move it to the editing window.
+local function return_focus()
+  local cur = vim.api.nvim_get_current_win()
+  if vim.bo[vim.api.nvim_win_get_buf(cur)].filetype ~= "no-neck-pain" then
+    return
+  end
+  local target = last_edit_win
+  if not (target and vim.api.nvim_win_is_valid(target)) then
+    target = vim.tbl_filter(is_edit_win, vim.api.nvim_tabpage_list_wins(0))[1]
+  end
+  if target then
+    vim.api.nvim_set_current_win(target)
+  end
+end
+-- hide (<c-/>, <leader>tt ...): the terminal window is closed by Snacks
+au("WinClosed", {
+  group = group("term_return"),
+  callback = function(ev)
+    local win = tonumber(ev.match)
+    if win and vim.api.nvim_win_is_valid(win) and vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "terminal" then
+      vim.schedule(return_focus)
+    end
+  end,
+})
+
 au("TermClose", {
   group = group("term_close"),
   desc = "Auto-close terminal window and wipe buffer on successful exit",
@@ -44,6 +89,8 @@ au("TermClose", {
     if vim.api.nvim_buf_is_valid(buf) then
       pcall(vim.api.nvim_buf_delete, buf, { force = true })
     end
+    -- exit: the window was closed right here (no WinClosed reaches the handler above)
+    vim.schedule(return_focus)
     -- vimade doesn't see this window change; without a nudge the editor stays faded until its next poll
     vim.schedule(function()
       if vim.fn.exists(":VimadeRedraw") == 2 then
