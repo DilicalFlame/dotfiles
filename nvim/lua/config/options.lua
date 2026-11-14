@@ -1,97 +1,129 @@
--- Options are automatically loaded before lazy.nvim startup
--- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
--- Add any additional options here
+-- Leader must be set before plugins load.
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
--- Line Numbers Display
-vim.wo.number = true
-vim.o.relativenumber = true
+local opt = vim.opt
 
--- System Integration
-vim.o.clipboard = "unnamedplus"
-vim.o.mouse = "a"
-
--- Setup PowerShell as default shell
-vim.o.shell = "pwsh"
-
--- Fix screen not clearing on exit
-vim.api.nvim_create_autocmd("VimLeave", {
-  pattern = "*",
-  callback = function()
-    -- Explicitly flush the alternate screen buffer exit code
-    io.stdout:write("\x1b[2J\x1b[H")
-    io.stdout:flush()
-  end,
-})
-
--- Line Wrapping and Indentation
-vim.o.wrap = false
-vim.o.linebreak = true
-vim.o.autoindent = true
-vim.o.smartindent = true
-vim.o.breakindent = true
-
--- Search Configuration
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.hlsearch = false
-
--- Tab and Space Management
-vim.o.shiftwidth = 4
-vim.o.tabstop = 4
-vim.o.softtabstop = 4
-vim.o.expandtab = true
-
--- Viewport and Display
-vim.o.scrolloff = 10
-vim.o.sidescrolloff = 8
-vim.o.cursorline = true
-vim.o.showmode = false
-vim.o.guicursor = "n-v-c-sm:block-blinkwait0-blinkon0-blinkoff0,i-ci-ve:ver25-blinkwait0-blinkon0-blinkoff0,r-cr-o:hor20-blinkwait0-blinkon0-blinkoff0,t:block-blinkwait0-blinkon0-blinkoff0"
-vim.opt.termguicolors = true
-vim.o.numberwidth = 4
-vim.o.showtabline = 2
-vim.o.conceallevel = 0
-vim.wo.signcolumn = "yes"
-vim.o.cmdheight = 1
-
--- Disable Snacks.nvim animations globally when available.
+-- Globals read by my own config
+vim.g.autoformat = true -- format on save (see util/format.lua)
+vim.g.markdown_recommended_style = 0
 vim.g.snacks_animate = false
 
--- Configure listchars to show spaces as dots
--- vim.o.list = true
--- vim.opt.listchars:append({ space = "·", tab = "» ", trail = "·", nbsp = "␣" })
+-- Line numbers
+opt.number = true
+opt.relativenumber = true
+opt.numberwidth = 4
+opt.signcolumn = "yes"
+opt.statuscolumn = [[%!v:lua.require'snacks.statuscolumn'.get()]]
 
--- Window Splits
-vim.o.splitbelow = true
-vim.o.splitright = true
+-- System integration
+opt.clipboard = "unnamedplus"
+opt.mouse = "a"
+opt.confirm = true -- ask instead of failing on unsaved changes
+opt.autowrite = true
 
--- File Management and History
-vim.o.swapfile = false
-vim.o.backup = false
-vim.o.writebackup = false
-vim.o.undofile = true
-vim.o.fileencoding = "utf-8"
+-- PowerShell as shell (settings from :help shell-powershell; -NoProfile keeps :! and system() fast/clean)
+if vim.fn.executable("pwsh") == 1 then
+  opt.shell = "pwsh"
+  opt.shellcmdflag = "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -Command "
+    .. "[Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+    .. "$ProgressPreference='SilentlyContinue';$PSStyle.OutputRendering='PlainText';"
+  opt.shellredir = "2>&1 | Out-File -Encoding utf8 %s; exit $LastExitCode"
+  opt.shellpipe = "2>&1 | Out-File -Encoding utf8 %s; exit $LastExitCode"
+  opt.shellquote = ""
+  opt.shellxquote = ""
+end
 
--- Timing and Event Delays
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
-vim.o.ttimeoutlen = 10
+-- Wrapping and indentation
+opt.wrap = false
+opt.linebreak = true
+opt.autoindent = true
+opt.smartindent = true
+opt.breakindent = true
+opt.shiftwidth = 4
+opt.tabstop = 4
+opt.softtabstop = 4
+opt.expandtab = true
+opt.shiftround = true
+opt.formatoptions = "jqlnt" -- no auto comment continuation
 
--- Save/restore split layout and window-local state in sessions.
-vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+-- Search
+opt.ignorecase = true
+opt.smartcase = true
+opt.hlsearch = false
+opt.inccommand = "nosplit"
+opt.grepformat = "%f:%l:%c:%m"
+opt.grepprg = "rg --vimgrep"
 
--- Completion and Menu Settings
-vim.o.pumheight = 10
-vim.o.completeopt = "menuone,noselect"
-vim.opt.shortmess:append("c")
+-- Viewport and display
+opt.scrolloff = 10
+opt.sidescrolloff = 8
+opt.cursorline = true
+opt.showmode = false
+opt.showtabline = 2
+opt.laststatus = 3 -- global statusline
+opt.ruler = false
+opt.cmdheight = 0 -- no reserved cmdline row: statusline sits at the very bottom, ://? overlay it while typing
+opt.conceallevel = 0
+opt.termguicolors = true
+opt.pumheight = 10
+opt.pumblend = 10
+opt.smoothscroll = true
+opt.list = true
+opt.winminwidth = 5
+opt.virtualedit = "block"
+opt.jumpoptions = "view"
+opt.guicursor =
+  "n-v-c-sm:block-blinkwait0-blinkon0-blinkoff0,i-ci-ve:ver25-blinkwait0-blinkon0-blinkoff0,r-cr-o:hor20-blinkwait0-blinkon0-blinkoff0,t:block-blinkwait0-blinkon0-blinkoff0"
+opt.fillchars = {
+  foldopen = "",
+  foldclose = "",
+  fold = " ",
+  foldsep = " ",
+  diff = "╱",
+  eob = " ",
+}
 
--- Navigation and Editing
-vim.o.whichwrap = "bs<>[]hl"
-vim.o.backspace = "indent,eol,start"
-vim.opt.iskeyword:append("-")
+-- Folding (treesitter/LSP switch foldmethod to "expr" per buffer)
+opt.foldlevel = 99
+opt.foldmethod = "indent"
+opt.foldtext = ""
 
--- Auto-formatting Preferences
-vim.opt.formatoptions:remove({ "c", "r", "o" })
+-- Splits
+opt.splitbelow = true
+opt.splitright = true
+opt.splitkeep = "screen"
 
--- Path Isolation
-vim.opt.runtimepath:remove("/usr/share/vim/vimfiles")
+-- Files and history
+opt.swapfile = false
+opt.backup = false
+opt.writebackup = false
+opt.undofile = true
+opt.undolevels = 10000
+opt.fileencoding = "utf-8"
+opt.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
+-- Timing
+opt.updatetime = 250
+opt.timeoutlen = 300
+opt.ttimeoutlen = 10
+
+-- Completion and command line
+opt.completeopt = "menuone,noselect"
+opt.wildmode = "longest:full,full"
+opt.shortmess:append({ W = true, I = true, c = true, C = true })
+opt.spelllang = { "en" }
+
+-- Navigation
+opt.whichwrap = "bs<>[]hl"
+opt.backspace = "indent,eol,start"
+opt.iskeyword:append("-")
+
+-- Format with conform (falls back to LSP)
+opt.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+-- Native message UI (experimental, 0.12+): messages collapse as "[+N]" instead of "Press ENTER" (use g< for the rest).
+-- Pairs with cmdheight=0. If it ever misbehaves, delete this block.
+pcall(function()
+  require("vim._core.ui2").enable({})
+end)
