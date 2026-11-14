@@ -28,35 +28,35 @@ return {
         "gosum",
         "gotmpl",
         "gowork",
-        "groovy",
-        "hcl",
         "html",
         "javascript",
         "jsdoc",
         "json",
+        "json5",
         --"jsonnet",
         -- "json5", -- https://json5.org
         "just",
         "lua",
         "luadoc",
+        "luap",
         "markdown",
         "markdown_inline",
         "printf",
         "python",
         "query",
         "regex",
-        "ruby",
+        "ron",
         "rust",
         "sql",
-        "terraform",
         "tmux",
+        "svelte",
         "toml",
+        "tsx",
         "typescript",
         "vim",
         "vimdoc",
         "xml",
         "yaml",
-        "zig",
         "zsh",
       }
       local installed = ts_cfg.get_installed()
@@ -80,7 +80,6 @@ return {
         "snacks_win",
         "snacks_input",
         "snacks_picker_input",
-        "TelescopePrompt",
         "alpha",
         "dashboard",
         "spectre_panel",
@@ -108,10 +107,57 @@ return {
           local buf = ev.buf
           pcall(vim.treesitter.start, buf, lang)
 
+          vim.wo.foldmethod = "expr"
           vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
           vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end,
       })
+    end,
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
+    event = "VeryLazy",
+    opts = {
+      move = {
+        enable = true,
+        set_jumps = true,
+        keys = {
+          goto_next_start = { ["]f"] = "@function.outer", ["]c"] = "@class.outer", ["]a"] = "@parameter.inner" },
+          goto_next_end = { ["]F"] = "@function.outer", ["]C"] = "@class.outer", ["]A"] = "@parameter.inner" },
+          goto_previous_start = { ["[f"] = "@function.outer", ["[c"] = "@class.outer", ["[a"] = "@parameter.inner" },
+          goto_previous_end = { ["[F"] = "@function.outer", ["[C"] = "@class.outer", ["[A"] = "@parameter.inner" },
+        },
+      },
+    },
+    config = function(_, opts)
+      require("nvim-treesitter-textobjects").setup(opts)
+
+      local function attach(buf)
+        local lang = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
+        if not (lang and vim.treesitter.query.get(lang, "textobjects")) then
+          return
+        end
+        for method, keymaps in pairs(opts.move.keys) do
+          for key, query in pairs(keymaps) do
+            vim.keymap.set({ "n", "x", "o" }, key, function()
+              -- in diff mode, ]c/[c must keep jumping between changes
+              if vim.wo.diff and key:find("[cC]") then
+                return vim.cmd("normal! " .. key)
+              end
+              require("nvim-treesitter-textobjects.move")[method](query, "textobjects")
+            end, { buffer = buf, silent = true, desc = (key:sub(1, 1) == "[" and "Prev " or "Next ") .. query })
+          end
+        end
+      end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("TreesitterTextobjects", { clear = true }),
+        callback = function(ev)
+          attach(ev.buf)
+        end,
+      })
+      vim.tbl_map(attach, vim.api.nvim_list_bufs())
     end,
   },
 }

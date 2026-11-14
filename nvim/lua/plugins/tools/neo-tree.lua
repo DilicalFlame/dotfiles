@@ -1,4 +1,4 @@
-local use_snacks_explorer = require("core.explorer").use_snacks
+local use_snacks_explorer = require("util.explorer").use_snacks
 
 return {
   {

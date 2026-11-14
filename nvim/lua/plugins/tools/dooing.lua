@@ -7,8 +7,7 @@ return {
 
       -- Window settings
       window = {
-        width = 55, -- Width of the floating window
-        height = 20, -- Height of the floating window
+        dimensions = { width = 55, height = 20 }, -- Size of the floating window
         border = "rounded", -- Border style
         padding = {
           top = 1,
