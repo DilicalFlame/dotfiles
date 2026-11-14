@@ -116,25 +116,13 @@ function M.set(theme)
   vim.notify("Failed to load colorscheme: " .. theme, vim.log.levels.WARN)
 end
 
-function M.telescope_picker()
-  local builtin = require("telescope.builtin")
-  local actions = require("telescope.actions")
-  local action_state = require("telescope.actions.state")
-
-  builtin.colorscheme({
-    enable_preview = true,
-    attach_mappings = function(prompt_bufnr)
-      actions.select_default:replace(function()
-        local entry = action_state.get_selected_entry()
-        actions.close(prompt_bufnr)
-
-        local theme = entry and (entry.value or entry.ordinal or entry[1])
-        if theme then
-          M.set(theme)
-        end
-      end)
-
-      return true
+function M.picker()
+  Snacks.picker.colorschemes({
+    confirm = function(picker, item)
+      picker:close()
+      if item then
+        M.set(item.text)
+      end
     end,
   })
 end
