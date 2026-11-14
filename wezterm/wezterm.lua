@@ -9,8 +9,9 @@ wezterm.on("gui-startup", function(cmd)
 end)
 
 config.default_prog = { "C:\\Program Files\\PowerShell\\7\\pwsh.exe", "-NoLogo" }
-config.default_cwd = "D:\\"
+config.default_cwd = "P:\\"
 config.status_update_interval = 500
+config.enable_kitty_graphics = true
 
 config.keys = {
 	{
@@ -18,6 +19,9 @@ config.keys = {
 		mods = "CTRL|SHIFT",
 		action = wezterm.action.SpawnTab("CurrentPaneDomain"),
 	},
+	-- Neovim: <C-,> / <C-.> cycle terminals. Sent as "CSI u" sequences, which a plain terminal cannot express.
+	{ key = ",", mods = "CTRL", action = wezterm.action.SendString("\x1b[44;5u") },
+	{ key = ".", mods = "CTRL", action = wezterm.action.SendString("\x1b[46;5u") },
 }
 
 config.initial_cols = 100
@@ -54,8 +58,8 @@ config.window_background_opacity = 0.92
 config.win32_system_backdrop = "Acrylic"
 
 config.font = wezterm.font("JetBrainsMono Nerd Font Mono", { weight = "Regular" })
-config.font_size = 13.5
-config.line_height = 1
+config.font_size = 14
+config.line_height = 1.04
 config.default_cursor_style = "SteadyBlock"
 config.cursor_blink_rate = 0
 

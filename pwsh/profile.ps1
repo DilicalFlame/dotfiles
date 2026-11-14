@@ -1,12 +1,3 @@
-# Pre-warm WSL in the background using direct .NET for zero latency
-#[System.Diagnostics.Process]::Start([System.Diagnostics.ProcessStartInfo]@{
-#    FileName = 'wsl.exe'
-#    Arguments = '-e true'
-#    WindowStyle = 'Hidden'
-#    CreateNoWindow = $true
-#}) | Out-Null
-
-Import-Module 'gsudoModule'
 Set-Alias -Name lg -Value lazygit
 
 function psql {
@@ -14,16 +5,11 @@ function psql {
     & "C:\Program Files\PostgreSQL\18\bin\psql.exe" @args
 }
 
-function tldr {
-    tealdeer --color always @args | less -R
-}
+function tldr { tealdeer --color always @args | less -R }
 
-# Map ls to lsd
 function ls { lsd $args }
 function ll { lsd -l $args }
 function la { lsd -a $args }
-
-# Map cat to bat
 function cat { bat $args }
 
 Remove-Alias man -ErrorAction SilentlyContinue
@@ -31,89 +17,17 @@ function man {
     wsl env MANROFFOPT="-c" MANPAGER="sh -c 'col -bx | batcat --color=always -l man -p'" man $args
 }
 
-# Import Chocolatey tab-completions
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-  Import-Module "$ChocolateyProfile"
-}
-
-# Batch remove PowerShell aliases for Linux executables
-Remove-Item Alias:where, Alias:curl, Alias:wget, Alias:ls, Alias:rm, Alias:cp, Alias:mv, Alias:cat, Alias:sort, Alias:tee, Alias:kill, Alias:diff, Alias:echo, Alias:pwd -ErrorAction SilentlyContinue
-
-# Load cached Oh My Posh initialization
-# . ~\omp-cache.ps1
-
-function Set-WezTermTabTitle {
-    $cwdPath = (Get-Location).Path
-
-    $gitRoot = git rev-parse --show-toplevel 2>$null
-
-    if ($gitRoot) {
-        $title = Split-Path $gitRoot -Leaf
-    } elseif ($cwdPath -match "^[a-zA-Z]:\\$") {
-        $title = $cwdPath
-    } else {
-        $title = Split-Path $cwdPath -Leaf
-    }
-
-    $esc = [char]27
-
-    [System.Console]::Write("$esc]0;$title$esc\")
-    [System.Console]::Write("$esc]2;$title$esc\")
-}
-
-function Set-WezTermCwd {
-    $esc = [char]27
-    $cwd = (Get-Location).Path
-
-    $uri = "file:///" + ($cwd -replace '\\','/')
-
-    [System.Console]::Write("$esc]7;$uri$esc\")
-}
-
-function prompt {
-    Set-WezTermTabTitle
-    Set-WezTermCwd
-
-    $e = [char]27
-    $osIcon = if ($env:WSL_DISTRO_NAME) { "$e[38;2;233;84;32m`u{F31B}" } else { "$e[38;2;0;164;239m`u{E70F}" }
-
-    $session = "$e[38;2;152;195;121m$($env:USERNAME.ToLower())@$($env:COMPUTERNAME.ToLower())"
-
-    $folderName = if ($PWD.Path -eq $env:USERPROFILE) { "~" } elseif ($PWD.Path -match "^[a-zA-Z]:\\$") { $PWD.Path } else { Split-Path $PWD.Path -Leaf }
-
-    $path = "$e[38;2;86;182;194m($folderName)"
-    $symbol = "$e[38;2;152;195;121m`$"
-    $reset = "$e[0m"
-
-    return "$osIcon $session $path $symbol $reset "
-}
-
-# fastfetch
-
-Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
-
 function cdx {
-    # Generate a temporary file to store the selected path
     $tmpPath = [System.IO.Path]::GetTempFileName()
-
     try {
-        # Run cdx WITHOUT capturing output. Just pass standard argument plus the hidden --out
         cdx.exe @args --out $tmpPath
-
-        # If the file grew in size, it means a path was selected and written
         if ((Get-Item $tmpPath).length -gt 0) {
             $dest = Get-Content $tmpPath -TotalCount 1
-            if ($dest -and (Test-Path $dest)) {
-                Set-Location $dest
-            }
+            if ($dest -and (Test-Path $dest)) { Set-Location $dest }
         }
     }
     finally {
-        # Always clean up the temp file
-        if (Test-Path $tmpPath) {
-            Remove-Item $tmpPath -Force
-        }
+        if (Test-Path $tmpPath) { Remove-Item $tmpPath -Force }
     }
 }
 
@@ -146,3 +60,99 @@ function reddit { param([string]$q); if ($q) { Start-Process "https://www.reddit
 function spotify { param([string]$q); if ($q) { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://open.spotify.com/search/$([uri]::EscapeDataString($q))`"" } else { Start-Process "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" -ArgumentList "--start-maximized", "--app=`"https://open.spotify.com`"" } }
 function wiki { param([string]$q); if ($q) { Start-Process "https://en.wikipedia.org/wiki/Special:Search?search=$([uri]::EscapeDataString($q))" } else { Start-Process "https://en.wikipedia.org" } }
 function gmaps { param([string]$q); if ($q) { Start-Process "https://www.google.com/maps/search/$([uri]::EscapeDataString($q))" } else { Start-Process "https://www.google.com/maps" } }
+
+# WezTerm UI Hooks
+function Set-WezTermTabTitle {
+    $cwdPath = (Get-Location).Path
+    $title = if ($cwdPath -match "^[a-zA-Z]:\\$") { $cwdPath } else { Split-Path $cwdPath -Leaf }
+    $esc = [char]27
+    [System.Console]::Write("$esc]0;$title$esc\")
+    [System.Console]::Write("$esc]2;$title$esc\")
+}
+
+function Set-WezTermCwd {
+    $esc = [char]27
+    $cwd = (Get-Location).Path
+    $uri = "file:///" + ($cwd -replace '\\','/')
+    [System.Console]::Write("$esc]7;$uri$esc\")
+}
+
+# Venv State Management
+$global:LastVenvCheckDir = ""
+
+function Update-Venv {
+    $dir = Get-Location
+    while ($dir) {
+        $activateScript = Join-Path $dir ".venv\Scripts\Activate.ps1"
+        if (Test-Path $activateScript) {
+            $targetVenv = (Resolve-Path (Join-Path $dir ".venv")).Path
+            if ($env:VIRTUAL_ENV -ne $targetVenv) {
+                if ($env:VIRTUAL_ENV -and (Test-Path Function:\deactivate)) { deactivate }
+                . $activateScript
+            }
+            return
+        }
+        $parent = Split-Path $dir -Parent
+        if ($parent -eq $dir) { break }
+        $dir = $parent
+    }
+    if ($env:VIRTUAL_ENV -and (Test-Path Function:\deactivate)) { deactivate }
+}
+
+# Prompt Generator
+function prompt {
+    if ($global:LastVenvCheckDir -ne $PWD.Path) {
+        Update-Venv
+        $global:LastVenvCheckDir = $PWD.Path
+    }
+
+    Set-WezTermTabTitle
+    Set-WezTermCwd
+
+    $e = [char]27
+    $osIcon = if ($env:WSL_DISTRO_NAME) { "$e[38;2;233;84;32m`u{F31B}" } else { "$e[38;2;0;164;239m`u{E70F}" }
+    $session = "$e[38;2;152;195;121m$($env:USERNAME.ToLower())@$($env:COMPUTERNAME.ToLower())"
+    $folderName = if ($PWD.Path -eq $env:USERPROFILE) { "~" } elseif ($PWD.Path -match "^[a-zA-Z]:\\$") { $PWD.Path } else { Split-Path $PWD.Path -Leaf }
+
+    $path = "$e[38;2;86;182;194m($folderName)"
+    $symbol = "$e[38;2;152;195;121m`$"
+    $reset = "$e[0m"
+
+    return "$osIcon $session $path $symbol $reset "
+}
+
+Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
+
+function New-CMakePreset {
+    $json = @"
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows",
+      "displayName": "MSYS2 UCRT64 Isolated Build",
+      "generator": "MinGW Makefiles",
+      "binaryDir": "`${sourceDir}/build",
+      "environment": {
+        "PATH": "C:/msys64/ucrt64/bin;`$penv{PATH}"
+      },
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows",
+      "configurePreset": "windows"
+    }
+  ]
+}
+"@
+    $json | Out-File -FilePath .\CMakePresets.json -Encoding utf8
+    Write-Host "Generated CMakePresets.json for isolated MSYS2 build!" -ForegroundColor Green
+}
+
+Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+Set-PSReadLineOption -PredictionViewStyle ListView   # or InlineView
+Import-Module CompletionPredictor
