@@ -17,6 +17,12 @@ New-Item -ItemType SymbolicLink -Path "$h\.wezterm.lua"           -Target "$d\we
 
 > `~` is avoided on purpose: only the file provider expands it, and not reliably in `-Target`. If `Documents` is OneDrive-redirected, use `[Environment]::GetFolderPath('MyDocuments')` instead of `$h\Documents`.
 
+> WezTerm nightly on recent Windows 11 can fail to open the symlinked `.wezterm.lua` with `The path cannot be traversed because it contains an untrusted mount point. (os error 448)`. Point WezTerm at the real file instead (user-level env var, then restart WezTerm fully):
+>
+> ```powershell
+> [Environment]::SetEnvironmentVariable('WEZTERM_CONFIG_FILE', "$d\wezterm\wezterm.lua", 'User')
+> ```
+
 ## Linux
 
 ```bash
